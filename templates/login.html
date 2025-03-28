@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
+
+{% block title %}Admin Login - My Blog{% endblock %}
+
+{% block content %}
+    <h1>Admin Login</h1>
+    <form method="POST" action="{{ url_for('login') }}" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ render_field(form.username) }}
+        </div>
+        <div class="form-group">
+            {{ render_field(form.password) }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+{% endblock %}

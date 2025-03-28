@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Review Message</h2>
+    
+    <div class="message-item">
+        <div class="post-meta">
+            From: {{ message.sender_name }}<br>
+            Received: {{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+        </div>
+        <div class="message-content">
+            {{ message.content }}
+        </div>
+    </div>
+
+    <h3>Convert to Blog Post</h3>
+    <form method="POST" class="form">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control") }}
+            {% if form.title.errors %}
+                <ul class="errors">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", rows=10) }}
+            {% if form.content.errors %}
+                <ul class="errors">
+                    {% for error in form.content.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                <input type="checkbox" name="hide_sender" value="1"> Hide sender's name in published post
+            </label>
+        </div>
+
+        <div class="admin-actions">
+            {{ form.submit(class="btn btn-primary") }}
+            <form action="{{ url_for('mark_reviewed', message_id=message.id) }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-secondary">Mark as Reviewed (No Post)</button>
+            </form>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

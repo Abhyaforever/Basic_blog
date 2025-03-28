@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - My Blog{% endblock %}
+
+{% block content %}
+    <h1>Admin Dashboard</h1>
+
+    <section id="unreviewed-messages">
+        <h2>Unreviewed Messages</h2>
+        {% if messages %}
+            <ul class="message-list">
+                {% for message in messages %}
+                    <li class="message-item">
+                        <p><strong>From:</strong> {{ message.sender_name }}</p>
+                        <p><strong>Received:</strong> {{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <blockquote>{{ message.content }}</blockquote>
+                        <div class="admin-actions">
+                            <a href="{{ url_for('review_message', message_id=message.id) }}" class="btn btn-primary">Review & Create Post</a>
+                            <form action="{{ url_for('mark_reviewed', message_id=message.id) }}" method="POST" style="display:inline;">
+                                <input type="submit" value="Mark as Reviewed (Ignore)" class="btn btn-secondary" onclick="return confirm('Are you sure you want to mark this message as reviewed without creating a post?');">
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No new messages to review.</p>
+        {% endif %}
+    </section>
+
+    <hr>
+
+    <section id="published-posts">
+        <h2>Published Blog Posts</h2>
+        {% if posts %}
+            <ul class="post-list-admin">
+                {% for post in posts %}
+                    <li class="post-item-admin">
+                        <h3>{{ post.title }}</h3>
+                        <p class="post-meta">Published on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% if post.message %}
+                            <p class="post-meta"><em>(Based on message from {{ post.message.sender_name }})</em></p>
+                        {% endif %}
+                        <div class="admin-actions">
+                            <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-secondary">Edit</a>
+                            <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                                <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?');">
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No blog posts have been published yet.</p>
+        {% endif %}
+    </section>
+
+{% endblock %}
