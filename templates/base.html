@@ -14,15 +14,13 @@
     <header>
         <nav>
             <div class="nav-container">
-                <a href="{{ url_for('index') }}" class="nav-brand">My Blog</a>
+                <a href="{{ url_for('index') }}" class="nav-brand">Blog</a>
                 <ul class="nav-links">
                     <li><a href="{{ url_for('index') }}">Home</a></li>
-                    <li><a href="{{ url_for('submit_message') }}">Send Message</a></li>
+                    <li><a href="{{ url_for('submit_message') }}">Suggestions</a></li>
                     {% if current_user.is_authenticated %}
                         <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('login') }}">Admin Login</a></li>
                     {% endif %}
                 </ul>
             </div>

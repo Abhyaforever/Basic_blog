@@ -12,7 +12,7 @@
                 {% for message in messages %}
                     <li class="message-item">
                         <p><strong>From:</strong> {{ message.sender_name }}</p>
-                        <p><strong>Received:</strong> {{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Received:</strong> {{ message.ist_timestamp.strftime('%Y-%m-%d %I:%M:%S %p IST') }}</p>
                         <blockquote>{{ message.content }}</blockquote>
                         <div class="admin-actions">
                             <a href="{{ url_for('review_message', message_id=message.id) }}" class="btn btn-primary">Review & Create Post</a>
@@ -37,7 +37,7 @@
                 {% for post in posts %}
                     <li class="post-item-admin">
                         <h3>{{ post.title }}</h3>
-                        <p class="post-meta">Published on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p class="post-meta">Published on {{ post.ist_timestamp.strftime('%Y-%m-%d %I:%M:%S %p IST') }}</p>
                         {% if post.message %}
                             <p class="post-meta"><em>(Based on message from {{ post.message.sender_name }})</em></p>
                         {% endif %}

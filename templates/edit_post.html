@@ -50,7 +50,7 @@
         <div class="message-item">
             <div class="post-meta">
                 From: {{ post.message.sender_name }}<br>
-                Received: {{ post.message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                Received: {{ post.message.ist_timestamp.strftime('%Y-%m-%d %I:%M:%S %p IST') }}
             </div>
             <div class="message-content">
                 {{ post.message.content }}

@@ -9,7 +9,7 @@
             {% for post in posts %}
                 <article class="post-item">
                     <h2>{{ post.title }}</h2>
-                    <p class="post-meta">Published on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p class="post-meta">Published on {{ post.ist_timestamp.strftime('%Y-%m-%d %I:%M:%S %p IST') }}</p>
                     <div class="post-content">
                         <!-- Displaying only a preview or full content based on preference -->
                         <!-- For now, showing full content -->

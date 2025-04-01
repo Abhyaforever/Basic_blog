@@ -9,6 +9,7 @@ from wtforms.validators import DataRequired, Length, Email
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime
+import pytz  # Add this import at the top
 load_dotenv()
 
 app = Flask(__name__)
@@ -47,6 +48,12 @@ class Message(db.Model):
     is_reviewed = db.Column(db.Boolean, default=False)
     is_published = db.Column(db.Boolean, default=False) # To track if it became a blog post
 
+    @property
+    def ist_timestamp(self):
+        """Convert UTC timestamp to IST"""
+        ist = pytz.timezone('Asia/Kolkata')
+        return self.timestamp.replace(tzinfo=pytz.UTC).astimezone(ist)
+
     def __repr__(self):
         return f'<Message {self.id} from {self.sender_name}>'
 
@@ -54,9 +61,15 @@ class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, server_default=db.func.now())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=True) # Link back to original message if applicable
     message = db.relationship('Message', backref=db.backref('blog_post', uselist=False))
+
+    @property
+    def ist_timestamp(self):
+        """Convert UTC timestamp to IST"""
+        ist = pytz.timezone('Asia/Kolkata')
+        return self.timestamp.replace(tzinfo=pytz.UTC).astimezone(ist)
 
     def __repr__(self):
         return f'<BlogPost {self.id}: {self.title}>'
@@ -87,7 +100,9 @@ class BlogPostForm(FlaskForm):
 @app.route('/')
 def index():
     posts = BlogPost.query.order_by(BlogPost.timestamp.desc()).all()
-    return render_template('index.html', posts=posts, now=datetime.now())
+    return render_template('index.html', 
+                         posts=posts, 
+                         now=datetime.now(pytz.timezone('Asia/Kolkata')))
 
 @app.route('/submit_message', methods=['GET', 'POST'])
 def submit_message():
@@ -127,8 +142,18 @@ def logout():
 @login_required
 def admin_dashboard():
     messages = Message.query.filter_by(is_reviewed=False).order_by(Message.timestamp.asc()).all()
-    published_posts = BlogPost.query.order_by(BlogPost.timestamp.desc()).all()
-    return render_template('admin_dashboard.html', messages=messages, posts=published_posts, now=datetime.now())
+    posts = BlogPost.query.order_by(BlogPost.timestamp.desc()).all()
+    
+    # Current time in IST
+    ist_now = datetime.now(pytz.timezone('Asia/Kolkata'))
+    
+    return render_template('admin_dashboard.html', 
+                         messages=messages,
+                         posts=posts,
+                         now=ist_now)
+
+# Create a timezone object for IST
+ist = pytz.timezone('Asia/Kolkata')
 
 @app.route('/admin/review_message/<int:message_id>', methods=['GET', 'POST'])
 @login_required
@@ -138,7 +163,12 @@ def review_message(message_id):
 
     if request.method == 'POST': # Handle form submission for creating post
         if form.validate_on_submit():
-            post = BlogPost(title=form.title.data, content=form.content.data, message_id=message.id)
+            post = BlogPost(
+                title=form.title.data,
+                content=form.content.data,
+                message_id=message.id,
+                timestamp=datetime.utcnow()  # Explicitly set UTC time
+            )
             db.session.add(post)
             message.is_reviewed = True
             message.is_published = True
@@ -149,7 +179,15 @@ def review_message(message_id):
         form.title.data = f"From {message.sender_name}" # Suggest a title
         form.content.data = message.content
 
-    return render_template('review_message.html', form=form, message=message, now=datetime.now())
+    # Convert UTC time to IST
+    ist_time = message.timestamp.replace(tzinfo=pytz.UTC).astimezone(ist)
+    
+    # Pass the converted time to template
+    return render_template('review_message.html', 
+                         form=form, 
+                         message=message, 
+                         ist_time=ist_time,
+                         now=datetime.now(ist))
 
 @app.route('/admin/mark_reviewed/<int:message_id>', methods=['POST'])
 @login_required
